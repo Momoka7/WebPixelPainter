@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=2" />
+    <link rel="icon" type="image/png" href="./favicon.png?v=2" />
+    <title>Pixel Art Painter</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="setup" class="card">
+      <h2>选择画布大小</h2>
+      <input
+        type="number"
+        id="canvasWidth"
+        placeholder="宽度"
+        min="1"
+        max="200"
+      />
+      <input
+        type="number"
+        id="canvasHeight"
+        placeholder="高度"
+        min="1"
+        max="200"
+      />
+      <button id="startDrawing" class="btn">开始绘画</button>
+    </div>
+
+    <div id="drawingApp" style="display: none">
+      <div class="toolbox left card">
+        <label for="colorPicker">选择颜色</label>
+        <input type="color" id="colorPicker" />
+        <label for="brushSize">最大画笔大小</label>
+        <input type="range" id="brushSize" min="1" max="10" value="5" />
+        <span id="brushSizeValue">5</span>
+        <p class="shortcut-hint">撤销: Ctrl+Z</p>
+        <p class="shortcut-hint">重做: Ctrl+Y</p>
+        <label for="backgroundTheme">背景主题</label>
+        <select id="backgroundTheme">
+          <option value="white">白色</option>
+          <option value="dark">暗色</option>
+          <option value="black">黑色</option>
+          <option value="transparent">透明</option>
+        </select>
+      </div>
+
+      <canvas id="pixelCanvas"></canvas>
+
+      <div class="toolbox right card">
+        <button id="exportButton" class="btn">导出图像</button>
+        <button id="clearButton" class="btn">清除画布</button>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

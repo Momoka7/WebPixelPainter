@@ -1,0 +1,132 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  font-family: "Arial", sans-serif;
+  background-color: #fff0f5;
+  color: #ff69b4;
+}
+
+.card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+#setup {
+  text-align: center;
+  padding: 30px; /* 增加内边距 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px; /* 添加元素之间的间距 */
+}
+
+#setup h2 {
+  margin-bottom: 20px; /* 标题下方增加间距 */
+}
+
+#setup input[type="number"] {
+  width: 80%; /* 控制输入框宽度 */
+  max-width: 300px; /* 限制最大宽度 */
+  margin-bottom: 15px; /* 输入框下方增加间距 */
+}
+
+#setup .btn {
+  margin-top: 10px; /* 按钮上方增加间距 */
+  width: 80%; /* 控制按钮宽度 */
+  max-width: 300px; /* 限制最大宽度 */
+}
+
+#drawingApp {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.toolbox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#pixelCanvas {
+  border: 2px solid #ff69b4;
+  border-radius: 5px;
+}
+
+input[type="number"],
+input[type="color"],
+input[type="range"] {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ff69b4;
+  border-radius: 5px;
+}
+
+.btn {
+  background-color: #ff69b4;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: #ff1493;
+}
+
+label {
+  font-weight: bold;
+}
+
+#brushSizeValue {
+  text-align: center;
+}
+
+/* 添加更多样式以美化界面 */
+
+.shortcut-hint {
+  font-size: 0.8em;
+  color: #888;
+  margin: 5px 0;
+}
+
+/* ... 保持其他样式不变 ... */
+
+select {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ff69b4;
+  border-radius: 5px;
+  background-color: white;
+  color: #ff69b4;
+}
+
+/* 添加背景主题相关样式 */
+.theme-white {
+  background-color: white;
+}
+
+.theme-dark {
+  background-color: #333;
+}
+
+.theme-black {
+  background-color: black;
+}
+
+.theme-transparent {
+  background-color: transparent;
+  background-image: linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
