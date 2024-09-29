@@ -16,14 +16,14 @@
         id="canvasWidth"
         placeholder="宽度"
         min="1"
-        max="200"
+        max="1000"
       />
       <input
         type="number"
         id="canvasHeight"
         placeholder="高度"
         min="1"
-        max="200"
+        max="1000"
       />
       <button id="startDrawing" class="btn">开始绘画</button>
     </div>
@@ -32,9 +32,13 @@
       <div class="toolbox left card">
         <label for="colorPicker">选择颜色</label>
         <input type="color" id="colorPicker" />
+        <label for="opacity">透明度</label>
+        <input type="range" id="opacity" min="0" max="100" value="100" />
+        <span id="opacityValue">100%</span>
         <label for="brushSize">最大画笔大小</label>
         <input type="range" id="brushSize" min="1" max="10" value="5" />
         <span id="brushSizeValue">5</span>
+        <button id="eraserButton" class="btn">橡皮擦</button>
         <p class="shortcut-hint">撤销: Ctrl+Z</p>
         <p class="shortcut-hint">重做: Ctrl+Y</p>
         <label for="backgroundTheme">背景主题</label>

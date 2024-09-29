@@ -8,6 +8,9 @@ let lastX, lastY;
 let currentBackgroundTheme = "white";
 let maxBrushSize = 5; // 最大画笔大小
 let currentDrawingActions = []; // 用于存储当前笔画的操作
+let zoomLevel = 1; // 新增: 缩放级别
+let isEraser = false;
+let opacity = 1;
 
 // 将所有的初始化逻辑移到 DOMContentLoaded 事件中
 document.addEventListener("DOMContentLoaded", function () {
@@ -15,10 +18,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const width = parseInt(document.getElementById("canvasWidth").value);
     const height = parseInt(document.getElementById("canvasHeight").value);
 
-    if (width && height) {
+    if (
+      width &&
+      height &&
+      width > 0 &&
+      height > 0 &&
+      width <= 1000 &&
+      height <= 1000
+    ) {
       setupCanvas(width, height);
       document.getElementById("setup").style.display = "none";
       document.getElementById("drawingApp").style.display = "flex";
+    } else {
+      alert("请输入有效的画布尺寸（1-1000之间的整数）");
     }
   });
 
@@ -43,15 +55,31 @@ document.addEventListener("DOMContentLoaded", function () {
   // 初始化背景主题
   const initialTheme = document.getElementById("backgroundTheme").value;
   updateBackgroundTheme(initialTheme);
+
+  document.getElementById("opacity").addEventListener("input", updateOpacity);
+  document
+    .getElementById("eraserButton")
+    .addEventListener("click", toggleEraser);
 });
 
 function setupCanvas(width, height) {
   canvas = document.getElementById("pixelCanvas");
   ctx = canvas.getContext("2d", { willReadFrequently: true });
 
-  pixelSize = Math.floor(Math.min(800 / width, 600 / height));
+  // 修改这里的逻辑，确保画布至少有1像素的大小
+  pixelSize = Math.max(1, Math.floor(Math.min(800 / width, 600 / height)));
   canvas.width = width * pixelSize;
   canvas.height = height * pixelSize;
+
+  // 如果画布尺寸超过了最大限制，调整它
+  const maxWidth = 3000; // 设置一个最大宽度
+  const maxHeight = 3000; // 设置一个最大高度
+  if (canvas.width > maxWidth || canvas.height > maxHeight) {
+    const scale = Math.min(maxWidth / canvas.width, maxHeight / canvas.height);
+    canvas.width = Math.floor(canvas.width * scale);
+    canvas.height = Math.floor(canvas.height * scale);
+    pixelSize = Math.max(1, Math.floor(pixelSize * scale));
+  }
 
   // 初始化背景
   updateBackgroundTheme(currentBackgroundTheme);
@@ -66,6 +94,9 @@ function setupCanvas(width, height) {
 
   // 初始保存状态
   saveState();
+
+  // 新增: 初始化缩放
+  updateZoom();
 }
 
 function startDrawing(e) {
@@ -89,7 +120,6 @@ function draw(e) {
   const [x, y] = getCoordinates(e);
   let pressure = e.pressure !== undefined ? e.pressure : 1;
 
-  // 如果是鼠标事件，使用最大画笔大小
   if (e.pointerType === "mouse") {
     pressure = 1;
   }
@@ -100,12 +130,21 @@ function draw(e) {
     `Pointer type: ${e.pointerType}, Pressure: ${pressure}, Brush size: ${brushSize}`
   );
 
-  const color = document.getElementById("colorPicker").value;
+  let color = document.getElementById("colorPicker").value;
+  if (isEraser) {
+    color = getBackgroundColor();
+    ctx.globalCompositeOperation = "destination-out";
+  } else {
+    ctx.globalCompositeOperation = "source-over";
+  }
 
-  // 使用 Bresenham 算法在两点之间插值
   const points = bresenhamLine(lastX, lastY, x, y);
   for (let point of points) {
-    ctx.fillStyle = color;
+    ctx.fillStyle = isEraser
+      ? color
+      : `${color}${Math.round(opacity * 255)
+          .toString(16)
+          .padStart(2, "0")}`;
     ctx.fillRect(
       point.x,
       point.y,
@@ -113,12 +152,12 @@ function draw(e) {
       pixelSize * brushSize
     );
 
-    // 记录绘制操作
     currentDrawingActions.push({
       x: point.x,
       y: point.y,
       brushSize: brushSize,
-      color: color,
+      color: ctx.fillStyle,
+      isEraser: isEraser,
     });
   }
 
@@ -166,6 +205,9 @@ function redrawFromStack() {
   for (let state of undoStack) {
     for (let action of state.actions) {
       ctx.fillStyle = action.color;
+      ctx.globalCompositeOperation = action.isEraser
+        ? "destination-out"
+        : "source-over";
       ctx.fillRect(
         action.x,
         action.y,
@@ -174,6 +216,7 @@ function redrawFromStack() {
       );
     }
   }
+  ctx.globalCompositeOperation = "source-over";
 }
 
 function bresenhamLine(x0, y0, x1, y1) {
@@ -262,11 +305,47 @@ function clearCanvas() {
 }
 
 function handleKeyboardShortcuts(e) {
-  if (e.ctrlKey && e.key === "z") {
-    e.preventDefault();
-    undo();
-  } else if (e.ctrlKey && e.key === "y") {
-    e.preventDefault();
-    redo();
+  if (e.ctrlKey) {
+    if (e.key === "z") {
+      e.preventDefault();
+      undo();
+    } else if (e.key === "y") {
+      e.preventDefault();
+      redo();
+    } else if (e.key === ",") {
+      e.preventDefault();
+      zoomOut();
+    } else if (e.key === ".") {
+      e.preventDefault();
+      zoomIn();
+    }
   }
+}
+
+// 新增: 放大函数
+function zoomIn() {
+  zoomLevel = Math.min(zoomLevel * 1.2, 5); // 最大放大5倍
+  updateZoom();
+}
+
+// 新增: 缩小函数
+function zoomOut() {
+  zoomLevel = Math.max(zoomLevel / 1.2, 0.1); // 最小缩小到0.1倍
+  updateZoom();
+}
+
+// 新增: 更新缩放
+function updateZoom() {
+  canvas.style.transform = `scale(${zoomLevel})`;
+  canvas.style.transformOrigin = "top left";
+}
+
+function updateOpacity(e) {
+  opacity = e.target.value / 100;
+  document.getElementById("opacityValue").textContent = `${e.target.value}%`;
+}
+
+function toggleEraser() {
+  isEraser = !isEraser;
+  document.getElementById("eraserButton").classList.toggle("active");
 }
